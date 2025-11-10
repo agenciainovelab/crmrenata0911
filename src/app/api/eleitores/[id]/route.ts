@@ -8,10 +8,10 @@ const CACHE_KEY_PREFIX = 'eleitores';
 // GET - Buscar eleitor por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const cacheKey = `${CACHE_KEY_PREFIX}:detail:${id}`;
     
     // Tentar obter do cache
@@ -60,9 +60,10 @@ export async function GET(
 // PUT - Atualizar eleitor
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     
     // Validar dados com Zod
@@ -70,7 +71,7 @@ export async function PUT(
     
     // Verificar se eleitor existe
     const existingEleitor = await prisma.eleitor.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
     
     if (!existingEleitor) {
@@ -96,7 +97,7 @@ export async function PUT(
     
     // Atualizar eleitor
     const eleitor = await prisma.eleitor.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...validatedData,
         dataNascimento: new Date(validatedData.dataNascimento),
@@ -139,12 +140,14 @@ export async function PUT(
 // DELETE - Deletar eleitor
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+    
     // Verificar se eleitor existe
     const existingEleitor = await prisma.eleitor.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
     
     if (!existingEleitor) {
@@ -156,7 +159,7 @@ export async function DELETE(
     
     // Deletar eleitor
     await prisma.eleitor.delete({
-      where: { id: params.id },
+      where: { id },
     });
     
     // 🗑️ INVALIDAR CACHE após deletar

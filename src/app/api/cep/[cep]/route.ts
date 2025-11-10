@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { cep: string } }
+  { params }: { params: Promise<{ cep: string }> }
 ) {
   try {
-    const cep = params.cep.replace(/\D/g, '');
+    const { cep: cepParam } = await params;
+    const cep = cepParam.replace(/\D/g, '');
     
     if (cep.length !== 8) {
       return NextResponse.json(
