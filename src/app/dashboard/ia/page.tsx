@@ -202,12 +202,12 @@ export default function IAPage() {
               </div>
               <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <p className="text-gray-700 dark:text-gray-300">
-                  <strong>Segmento 'Líderes':</strong> Maior engajamento em emails
+                  <strong>Segmento &apos;Líderes&apos;:</strong> Maior engajamento em emails
                 </p>
               </div>
               <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                 <p className="text-gray-700 dark:text-gray-300">
-                  <strong>Recomendação:</strong> Aumentar frequência com grupo 'Pessoas'
+                  <strong>Recomendação:</strong> Aumentar frequência com grupo &apos;Pessoas&apos;
                 </p>
               </div>
             </div>
