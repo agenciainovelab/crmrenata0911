@@ -128,7 +128,7 @@ async function buildHierarchyNode(userId: string): Promise<HierarchyNode | null>
   
   // Construir nós filhos recursivamente
   const subordinadosNodes = await Promise.all(
-    subordinados.map(sub => buildHierarchyNode(sub.id))
+    subordinados.map((sub: any) => buildHierarchyNode(sub.id))
   );
   
   return {
