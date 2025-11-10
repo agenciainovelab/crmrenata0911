@@ -101,7 +101,7 @@ export function Sidebar() {
                           <div>
                             <MenuItem
                               isActive={item.items.some(
-                                ({ url }) => url === pathname,
+                                ({ url }: any) => url === pathname,
                               )}
                               onClick={() => toggleExpanded(item.title)}
                             >
