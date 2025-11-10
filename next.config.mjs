@@ -1,6 +1,20 @@
 /** @type {import("next").NextConfig} */
 const nextConfig = {
+  // Otimizações de performance
+  reactStrictMode: true,
+  compress: true,
+  swcMinify: true,
+  poweredByHeader: false,
+  
+  // Experimental features
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['lucide-react', 'recharts'],
+  },
+  
   images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 60,
     remotePatterns: [
       {
         protocol: "https",
@@ -23,7 +37,23 @@ const nextConfig = {
         port: ""
       }
     ]
-  }
+  },
+  
+  // Headers de cache
+  async headers() {
+    return [
+      {
+        source: '/:all*(svg|jpg|png|webp|avif)',
+        locale: false,
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          }
+        ],
+      },
+    ]
+  },
 };
 
 export default nextConfig;

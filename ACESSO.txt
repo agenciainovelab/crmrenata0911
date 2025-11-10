@@ -1,0 +1,40 @@
+=================================================================
+SISTEMA POLÍTICO - CAMPANHA INTELIGENTE
+=================================================================
+
+🌐 URL de Acesso:
+https://3000-iddew3bszs42c5pu4570w-4b5c8339.manusvm.computer
+
+🔐 Login:
+- Email: qualquer@email.com
+- Senha: qualquer senha
+
+⚠️ IMPORTANTE:
+- A primeira tela é o LOGIN (sem menu/header)
+- Após login, aparece o dashboard completo
+- Use o botão "Sair" (vermelho) para fazer logout
+
+📊 Módulos Disponíveis:
+1. Dashboard - Visão geral com estatísticas
+2. Usuários - Gestão de usuários por tipo
+3. Hierarquia - Árvore de relacionamentos
+4. Campanhas - Gestão de campanhas políticas
+5. Comunicação - Envio multicanal
+6. IA e Análises - Recursos de IA
+7. Relatórios - Gráficos e análises
+8. Configurações - Permissões e integrações
+
+🎨 Características:
+- Logo da Renata Daguiar integrada
+- Paleta roxa e azul política
+- Skeleton loaders em todas as transições
+- Design responsivo
+- Modo escuro
+
+📁 Documentação:
+- README.md - Guia rápido
+- DOCUMENTACAO.md - Documentação completa
+
+=================================================================
+Campanha Inteligente © 2025
+=================================================================

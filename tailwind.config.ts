@@ -18,7 +18,12 @@ const config: Config = {
         current: "currentColor",
         transparent: "transparent",
         white: "#FFFFFF",
-        primary: "#5750F1",
+        primary: "#7B2CBF",
+        "primary-dark": "#3A0CA3",
+        "primary-light": "#9D4EDD",
+        "political-purple": "#7B2CBF",
+        "political-purple-dark": "#3A0CA3",
+        "political-blue": "#3B82F6",
         stroke: "#E6EBF1",
         "stroke-dark": "#27303E",
         dark: {

@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  LIDER
+  PESSOA
+}
+
+enum Genero {
+  MASCULINO
+  FEMININO
+  OUTRO
+  NAO_INFORMAR
+}
+
+enum Escolaridade {
+  FUNDAMENTAL_INCOMPLETO
+  FUNDAMENTAL_COMPLETO
+  MEDIO_INCOMPLETO
+  MEDIO_COMPLETO
+  SUPERIOR_INCOMPLETO
+  SUPERIOR_COMPLETO
+  POS_GRADUACAO
+  MESTRADO
+  DOUTORADO
+}
+
+model Usuario {
+  id          String    @id @default(uuid())
+  nome        String
+  email       String    @unique
+  senhaHash   String
+  role        Role      @default(PESSOA)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relacionamento: eleitores cadastrados por este usuário
+  eleitores   Eleitor[]
+  
+  @@map("usuarios")
+}
+
+model Eleitor {
+  id                String        @id @default(uuid())
+  
+  // Dados pessoais
+  nomeCompleto      String
+  cpf               String        @unique
+  dataNascimento    DateTime
+  telefone          String
+  email             String?
+  genero            Genero
+  escolaridade      Escolaridade
+  
+  // Endereço
+  cep               String
+  logradouro        String
+  numero            String
+  complemento       String?
+  bairro            String
+  cidade            String
+  uf                String
+  
+  // Dados eleitorais
+  zonaEleitoral     String?
+  secao             String?
+  
+  // Relacionamento com o líder que cadastrou
+  criadoPorId       String
+  criadoPor         Usuario       @relation(fields: [criadoPorId], references: [id])
+  
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  
+  @@map("eleitores")
+  @@index([criadoPorId])
+  @@index([cidade])
+  @@index([uf])
+}

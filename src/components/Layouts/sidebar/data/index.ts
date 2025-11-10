@@ -1,104 +1,77 @@
 import * as Icons from "../icons";
+import { 
+  LayoutDashboard, 
+  Users, 
+  GitBranch, 
+  Megaphone, 
+  MessageSquare, 
+  Brain, 
+  BarChart3, 
+  Settings 
+} from "lucide-react";
 
 export const NAV_DATA = [
   {
-    label: "MAIN MENU",
+    label: "MENU PRINCIPAL",
     items: [
       {
         title: "Dashboard",
-        icon: Icons.HomeIcon,
-        items: [
-          {
-            title: "eCommerce",
-            url: "/",
-          },
-        ],
-      },
-      {
-        title: "Calendar",
-        url: "/calendar",
-        icon: Icons.Calendar,
+        url: "/dashboard",
+        icon: LayoutDashboard,
         items: [],
       },
       {
-        title: "Profile",
-        url: "/profile",
-        icon: Icons.User,
+        title: "Usuários",
+        url: "/dashboard/usuarios",
+        icon: Users,
         items: [],
       },
       {
-        title: "Forms",
-        icon: Icons.Alphabet,
-        items: [
-          {
-            title: "Form Elements",
-            url: "/forms/form-elements",
-          },
-          {
-            title: "Form Layout",
-            url: "/forms/form-layout",
-          },
-        ],
+        title: "Hierarquia",
+        url: "/dashboard/hierarquia",
+        icon: GitBranch,
+        items: [],
       },
       {
-        title: "Tables",
-        url: "/tables",
-        icon: Icons.Table,
-        items: [
-          {
-            title: "Tables",
-            url: "/tables",
-          },
-        ],
+        title: "Eleitores",
+        url: "/dashboard/eleitores",
+        icon: Users,
+        items: [],
       },
       {
-        title: "Pages",
-        icon: Icons.Alphabet,
-        items: [
-          {
-            title: "Settings",
-            url: "/pages/settings",
-          },
-        ],
+        title: "Campanhas",
+        url: "/dashboard/campanhas",
+        icon: Megaphone,
+        items: [],
+      },
+      {
+        title: "Comunicação",
+        url: "/dashboard/comunicacao",
+        icon: MessageSquare,
+        items: [],
       },
     ],
   },
   {
-    label: "OTHERS",
+    label: "ANÁLISES",
     items: [
       {
-        title: "Charts",
-        icon: Icons.PieChart,
-        items: [
-          {
-            title: "Basic Chart",
-            url: "/charts/basic-chart",
-          },
-        ],
+        title: "IA e Análises",
+        url: "/dashboard/ia",
+        icon: Brain,
+        items: [],
       },
       {
-        title: "UI Elements",
-        icon: Icons.FourCircle,
-        items: [
-          {
-            title: "Alerts",
-            url: "/ui-elements/alerts",
-          },
-          {
-            title: "Buttons",
-            url: "/ui-elements/buttons",
-          },
-        ],
+        title: "Relatórios",
+        url: "/dashboard/relatorios",
+        icon: BarChart3,
+        items: [],
       },
       {
-        title: "Authentication",
-        icon: Icons.Authentication,
-        items: [
-          {
-            title: "Sign In",
-            url: "/auth/sign-in",
-          },
-        ],
+        title: "Configurações",
+        url: "/dashboard/configuracoes",
+        icon: Settings,
+        items: [],
       },
     ],
   },

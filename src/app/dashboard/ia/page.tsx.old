@@ -1,0 +1,196 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Brain, Target, TrendingUp, Users, Sparkles, BarChart3 } from "lucide-react";
+
+export default function IAPage() {
+  const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setTimeout(() => setLoading(false), 300);
+          return 100;
+        }
+        return prev + 25;
+      });
+    }, 400);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-8 w-48 animate-pulse rounded bg-gray-3 dark:bg-dark-3"></div>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-48 animate-pulse rounded-xl bg-gray-3 dark:bg-dark-3"></div>
+          ))}
+        </div>
+        <div className="mt-6 text-center text-sm text-primary">
+          Carregando IA {progress}%
+        </div>
+      </div>
+    );
+  }
+
+  const features = [
+    {
+      icon: Brain,
+      title: "Análise Preditiva",
+      description: "IA em treinamento para prever tendências de voto e comportamento eleitoral",
+      status: "Em desenvolvimento",
+      color: "purple",
+    },
+    {
+      icon: Target,
+      title: "Segmentação Inteligente",
+      description: "Identificação automática de grupos-alvo para campanhas personalizadas",
+      status: "Em desenvolvimento",
+      color: "blue",
+    },
+    {
+      icon: TrendingUp,
+      title: "Otimização de Campanhas",
+      description: "Sugestões baseadas em IA para melhorar performance de envios",
+      status: "Em desenvolvimento",
+      color: "green",
+    },
+    {
+      icon: Users,
+      title: "Análise de Sentimento",
+      description: "Monitoramento de sentimento público através de interações",
+      status: "Em desenvolvimento",
+      color: "purple",
+    },
+    {
+      icon: Sparkles,
+      title: "Geração de Conteúdo",
+      description: "Criação automática de mensagens políticas personalizadas",
+      status: "Em desenvolvimento",
+      color: "blue",
+    },
+    {
+      icon: BarChart3,
+      title: "Dashboard Preditivo",
+      description: "Visualização de projeções e cenários futuros da campanha",
+      status: "Em desenvolvimento",
+      color: "green",
+    },
+  ];
+
+  const colorClasses: Record<string, string> = {
+    purple: "bg-primary/10 text-primary",
+    blue: "bg-political-blue/10 text-political-blue",
+    green: "bg-green/10 text-green",
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Cabeçalho */}
+      <div>
+        <h1 className="text-3xl font-bold text-dark dark:text-white">
+          Inteligência Artificial
+        </h1>
+        <p className="mt-2 text-dark-5 dark:text-dark-6">
+          Recursos de IA para otimização de campanhas políticas
+        </p>
+      </div>
+
+      {/* Banner de Status */}
+      <div className="rounded-xl border-2 border-primary bg-primary/5 p-6">
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-primary/20">
+            <Sparkles className="h-6 w-6 text-primary" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg font-bold text-dark dark:text-white">
+              Sistema de IA em Treinamento
+            </h3>
+            <p className="mt-2 text-dark-5 dark:text-dark-6">
+              Estamos desenvolvendo recursos avançados de inteligência artificial para
+              potencializar sua campanha política. Os módulos abaixo estarão disponíveis
+              em breve com funcionalidades completas de análise, predição e otimização.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Cards de Recursos */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        {features.map((feature, index) => {
+          const Icon = feature.icon;
+          return (
+            <div
+              key={index}
+              className="rounded-xl bg-white p-6 shadow-card transition-all hover:shadow-card-2 dark:bg-gray-dark"
+            >
+              <div className="mb-4 flex items-start justify-between">
+                <div
+                  className={`flex h-14 w-14 items-center justify-center rounded-full ${
+                    colorClasses[feature.color]
+                  }`}
+                >
+                  <Icon className="h-7 w-7" />
+                </div>
+                <span className="rounded-full bg-yellow-light-4 px-3 py-1 text-xs font-medium text-yellow-dark">
+                  {feature.status}
+                </span>
+              </div>
+
+              <h3 className="text-xl font-bold text-dark dark:text-white">
+                {feature.title}
+              </h3>
+              <p className="mt-3 text-sm text-dark-5 dark:text-dark-6">
+                {feature.description}
+              </p>
+
+              <div className="mt-6">
+                <div className="mb-2 flex items-center justify-between text-sm">
+                  <span className="text-dark-5 dark:text-dark-6">Progresso</span>
+                  <span className="font-medium text-primary">
+                    {Math.floor(Math.random() * 40 + 30)}%
+                  </span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-gray-3 dark:bg-dark-3">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all"
+                    style={{ width: `${Math.floor(Math.random() * 40 + 30)}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Insights Placeholder */}
+      <div className="rounded-xl bg-white p-6 shadow-card dark:bg-gray-dark">
+        <h3 className="mb-6 text-xl font-bold text-dark dark:text-white">
+          Insights Recentes
+        </h3>
+        <div className="space-y-4">
+          {[
+            "Melhor horário para envio de WhatsApp: 18h-20h (taxa de abertura 15% maior)",
+            "Segmento 'Líderes' apresenta maior engajamento em campanhas de email",
+            "Recomendação: Aumentar frequência de comunicação com grupo 'Pessoas'",
+          ].map((insight, index) => (
+            <div
+              key={index}
+              className="flex items-start gap-4 rounded-lg border border-stroke p-4 dark:border-dark-3"
+            >
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
+                <Sparkles className="h-4 w-4 text-primary" />
+              </div>
+              <p className="flex-1 text-sm text-dark dark:text-white">{insight}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
