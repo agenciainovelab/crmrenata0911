@@ -95,7 +95,7 @@ export function Sidebar() {
 
                 <nav role="navigation" aria-label={section.label}>
                   <ul className="space-y-2">
-                    {section.items.map((item) => (
+                    {section.items.map((item: any) => (
                       <li key={item.title}>
                         {item.items.length ? (
                           <div>
