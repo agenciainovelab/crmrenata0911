@@ -137,7 +137,7 @@ async function buildHierarchyNode(userId: string): Promise<HierarchyNode | null>
     email: usuario.email,
     role: usuario.role as any,
     tipo: 'usuario',
-    eleitores: eleitores.map(e => ({
+    eleitores: eleitores.map((e: any) => ({
       ...e,
       tipo: 'eleitor' as const,
     })),
