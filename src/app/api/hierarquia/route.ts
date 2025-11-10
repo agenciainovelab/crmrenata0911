@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
     
     // Construir árvore completa para cada Super Admin
     const hierarchy = await Promise.all(
-      superAdmins.map(admin => buildHierarchyNode(admin.id))
+      superAdmins.map((admin: any) => buildHierarchyNode(admin.id))
     );
     
     // Salvar no cache (5 minutos)
