@@ -15,15 +15,39 @@ export default function LoginPolitico() {
     e.preventDefault();
     setLoading(true);
 
-    // Simular autenticação com skeleton de 2 segundos
-    setTimeout(() => {
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          senha: password,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        alert(error.error || "Erro ao fazer login");
+        setLoading(false);
+        return;
+      }
+
+      const userData = await response.json();
+
       // Salvar estado de autenticação
       localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("userEmail", email);
-      
+      localStorage.setItem("userId", userData.id);
+      localStorage.setItem("userEmail", userData.email);
+
       // Redirecionar para dashboard
       router.push("/dashboard");
-    }, 2000);
+    } catch (error) {
+      console.error("Erro ao fazer login:", error);
+      alert("Erro ao fazer login");
+      setLoading(false);
+    }
   };
 
   return (

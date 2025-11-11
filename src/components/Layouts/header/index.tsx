@@ -4,7 +4,7 @@ import { SearchIcon } from "@/assets/icons";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { useState } from "react";
 import { useSidebarContext } from "../sidebar/sidebar-context";
 import { MenuIcon } from "./icons";
 import { Notification } from "./notification";
@@ -14,15 +14,18 @@ import { UserInfo } from "./user-info";
 export function Header() {
   const { toggleSidebar, isMobile } = useSidebarContext();
   const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const handleLogout = () => {
-    localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("userEmail");
-    router.push("/auth/sign-in");
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      console.log("Buscando por:", searchQuery);
+      router.push(`/dashboard/busca?q=${encodeURIComponent(searchQuery)}`);
+    }
   };
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-stroke bg-white px-4 py-5 shadow-1 dark:border-stroke-dark dark:bg-gray-dark md:px-5 2xl:px-10">
+    <header className="sticky top-0 z-20 flex items-center justify-between border-b border-stroke bg-white px-4 py-5 shadow-1 dark:border-stroke-dark dark:bg-gray-dark md:px-5 2xl:px-10">
       <button
         onClick={toggleSidebar}
         className="rounded-lg border px-1.5 py-1 dark:border-stroke-dark dark:bg-[#020D1A] hover:dark:bg-[#FFFFFF1A] lg:hidden"
@@ -52,32 +55,34 @@ export function Header() {
       </div>
 
       <div className="flex flex-1 items-center justify-end gap-2 min-[375px]:gap-4">
-        <div className="relative w-full max-w-[300px]">
+        {/* Busca Funcional */}
+        <form onSubmit={handleSearch} className="relative w-full max-w-[300px]">
           <input
             type="search"
-            placeholder="Buscar..."
-            className="flex w-full items-center gap-3.5 rounded-full border bg-gray-2 py-3 pl-[53px] pr-5 outline-none transition-colors focus-visible:border-primary dark:border-dark-3 dark:bg-dark-2 dark:hover:border-dark-4 dark:hover:bg-dark-3 dark:hover:text-dark-6 dark:focus-visible:border-primary"
+            placeholder="Buscar eleitores, líderes..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex w-full items-center gap-3.5 rounded-full border bg-gray-2 py-3 pl-[53px] pr-5 outline-none transition-colors focus-visible:border-primary dark:border-dark-3 dark:bg-dark-2 dark:text-white dark:hover:border-dark-4 dark:hover:bg-dark-3 dark:focus-visible:border-primary"
           />
 
-          <SearchIcon className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 max-[1015px]:size-5" />
-        </div>
+          <button
+            type="submit"
+            className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2"
+          >
+            <SearchIcon className="max-[1015px]:size-5" />
+          </button>
+        </form>
 
+        {/* Toggle Tema */}
         <ThemeToggleSwitch />
 
+        {/* Notificações */}
         <Notification />
 
+        {/* Info do Usuário */}
         <div className="shrink-0">
           <UserInfo />
         </div>
-
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-2 rounded-lg bg-red px-4 py-2 text-sm font-medium text-white transition hover:bg-opacity-90"
-          title="Sair do sistema"
-        >
-          <LogOut className="h-4 w-4" />
-          <span className="max-md:hidden">Sair</span>
-        </button>
       </div>
     </header>
   );

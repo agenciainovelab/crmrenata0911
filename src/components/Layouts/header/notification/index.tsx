@@ -15,28 +15,18 @@ import { BellIcon } from "./icons";
 const notificationList = [
   {
     image: "/images/user/user-15.png",
-    title: "Piter Joined the Team!",
-    subTitle: "Congratulate him",
+    title: "Novo eleitor cadastrado",
+    subTitle: "João Silva foi cadastrado no sistema",
   },
   {
     image: "/images/user/user-03.png",
-    title: "New message",
-    subTitle: "Devid sent a new message",
+    title: "Reunião agendada",
+    subTitle: "Reunião marcada para amanhã às 14h",
   },
   {
     image: "/images/user/user-26.png",
-    title: "New Payment received",
-    subTitle: "Check your earnings",
-  },
-  {
-    image: "/images/user/user-28.png",
-    title: "Jolly completed tasks",
-    subTitle: "Assign new task",
-  },
-  {
-    image: "/images/user/user-27.png",
-    title: "Roman Joined the Team!",
-    subTitle: "Congratulate him",
+    title: "Meta alcançada",
+    subTitle: "500 eleitores cadastrados este mês",
   },
 ];
 
@@ -74,15 +64,15 @@ export function Notification() {
       </DropdownTrigger>
 
       <DropdownContent
-        align={isMobile ? "end" : "center"}
-        className="border border-stroke bg-white px-3.5 py-3 shadow-md dark:border-dark-3 dark:bg-gray-dark min-[350px]:min-w-[20rem]"
+        align="end"
+        className="border border-stroke bg-white px-3.5 py-3 shadow-md dark:border-dark-3 dark:bg-gray-dark min-[350px]:min-w-[20rem] mr-4"
       >
         <div className="mb-1 flex items-center justify-between px-2 py-1.5">
           <span className="text-lg font-medium text-dark dark:text-white">
-            Notifications
+            Notificações
           </span>
           <span className="rounded-md bg-primary px-[9px] py-0.5 text-xs font-medium text-white">
-            5 new
+            {notificationList.length} novas
           </span>
         </div>
 
@@ -117,11 +107,11 @@ export function Notification() {
         </ul>
 
         <Link
-          href="#"
+          href="/dashboard/notificacoes"
           onClick={() => setIsOpen(false)}
           className="block rounded-lg border border-primary p-2 text-center text-sm font-medium tracking-wide text-primary outline-none transition-colors hover:bg-blue-light-5 focus:bg-blue-light-5 focus:text-primary focus-visible:border-primary dark:border-dark-3 dark:text-dark-6 dark:hover:border-dark-5 dark:hover:bg-dark-3 dark:hover:text-dark-7 dark:focus-visible:border-dark-5 dark:focus-visible:bg-dark-3 dark:focus-visible:text-dark-7"
         >
-          See all notifications
+          Ver todas as notificações
         </Link>
       </DropdownContent>
     </Dropdown>

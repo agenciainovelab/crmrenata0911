@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ cep: string }> }
+  context: { params: Promise<{ cep: string }> }
 ) {
   try {
-    const { cep: cepParam } = await params;
+    const { cep: cepParam } = await context.params;
     const cep = cepParam.replace(/\D/g, '');
     
     if (cep.length !== 8) {

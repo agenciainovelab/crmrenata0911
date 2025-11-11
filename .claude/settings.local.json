@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tsx prisma/seed-users.ts)",
+      "Bash(npx prisma generate:*)",
+      "Bash(set \"DATABASE_URL=postgresql://crm:Leo07102008%40%23%40@31.97.172.127:5432/renata?schema=public\")",
+      "Bash(copy:*)",
+      "Bash(cat:*)",
+      "Bash(npx tsx:*)",
+      "Bash(PGPASSWORD=\"Leo07102008@#@\" psql -h 31.97.172.127 -p 5432 -U crm -d renata -f create-users.sql)",
+      "Bash(node create-users-pg.js:*)",
+      "Bash(node test-connection.js:*)",
+      "Bash(npx prisma migrate:*)",
+      "Bash(DATABASE_URL=\"postgresql://crm:Leo07102008%40%23%40@31.97.172.127:2/renata?schema=public\" npx prisma migrate deploy:*)",
+      "Bash(set \"DATABASE_URL=postgresql://crm:Leo07102008%40%23%40@31.97.172.127:2/renata?schema=public\")",
+      "Bash(findstr:*)",
+      "Bash(move:*)",
+      "Bash(PGPASSWORD=\"Leo07102008@#@\" psql -h 31.97.172.127 -p 2 -U crm -d renata -f add-foto-field.sql)",
+      "Bash(node add-foto-field.js:*)",
+      "Bash(node add-telefone-field.js:*)",
+      "Bash(npm run build:*)",
+      "Bash(find:*)",
+      "Bash(taskkill:*)",
+      "Bash(pkill:*)",
+      "Bash(npm run dev:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -3,7 +3,6 @@ const nextConfig = {
   // Otimizações de performance
   reactStrictMode: true,
   compress: true,
-  swcMinify: true,
   poweredByHeader: false,
   
   // Experimental features

@@ -26,25 +26,6 @@ if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prismaOptimized;
 }
 
-// Middleware para logging de queries lentas
-prismaOptimized.$use(async (params, next) => {
-  const before = Date.now();
-  const result = await next(params);
-  const after = Date.now();
-  
-  const queryTime = after - before;
-  
-  // Log queries que demoram mais de 1 segundo
-  if (queryTime > 1000) {
-    console.warn(`⚠️ Query lenta detectada (${queryTime}ms):`, {
-      model: params.model,
-      action: params.action,
-    });
-  }
-  
-  return result;
-});
-
 // Função helper para queries com cache
 export async function cachedQuery<T>(
   key: string,

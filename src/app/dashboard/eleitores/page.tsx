@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Search, Plus, Edit, Trash2, User, MapPin, FileText } from 'lucide-react';
 import FormularioCadastroEleitor from '@/components/Eleitores/FormularioCadastro';
+import Modal from '@/components/Modal';
 
 interface Eleitor {
   id: string;
@@ -72,9 +73,9 @@ export default function EleitoresPage() {
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-politico-roxo to-politico-roxo-escuro text-white rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 font-semibold text-base shadow-md"
+          className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg font-medium transition hover:bg-opacity-90"
         >
-          <Plus className="w-6 h-6" />
+          <Plus className="h-5 w-5" />
           Adicionar Novo Eleitor
         </button>
       </div>
@@ -193,15 +194,20 @@ export default function EleitoresPage() {
       </div>
 
       {/* Modal de cadastro */}
-      {showModal && (
-        <ModalCadastroEleitor
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        title="Cadastrar Novo Eleitor"
+        maxWidth="2xl"
+      >
+        <FormularioCadastroEleitor
           onClose={() => setShowModal(false)}
           onSuccess={() => {
             setShowModal(false);
             fetchEleitores();
           }}
         />
-      )}
+      </Modal>
 
       {/* Footer */}
       <div className="mt-8 text-center text-gray-500 dark:text-gray-400 text-sm">
@@ -209,8 +215,4 @@ export default function EleitoresPage() {
       </div>
     </div>
   );
-}
-
-function ModalCadastroEleitor({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
-  return <FormularioCadastroEleitor onClose={onClose} onSuccess={onSuccess} />;
 }

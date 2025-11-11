@@ -42,12 +42,14 @@ model Usuario {
   email       String    @unique
   senhaHash   String
   role        Role      @default(PESSOA)
+  telefone    String?
+  foto        String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  
+
   // Relacionamento: eleitores cadastrados por este usuário
   eleitores   Eleitor[]
-  
+
   @@map("usuarios")
 }
 

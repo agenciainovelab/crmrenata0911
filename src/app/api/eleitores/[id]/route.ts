@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import { eleitorSchema } from '@/lib/validations/eleitor';
 import { getCache, setCache, deleteCachePattern } from '@/lib/redis';
@@ -8,10 +9,10 @@ const CACHE_KEY_PREFIX = 'eleitores';
 // GET - Buscar eleitor por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     const cacheKey = `${CACHE_KEY_PREFIX}:detail:${id}`;
     
     // Tentar obter do cache
@@ -60,10 +61,10 @@ export async function GET(
 // PUT - Atualizar eleitor
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     const body = await request.json();
     
     // Validar dados com Zod
@@ -125,7 +126,7 @@ export async function PUT(
     
     if (error.name === 'ZodError') {
       return NextResponse.json(
-        { error: 'Dados inválidos', details: error.errors },
+        { error: 'Dados inválidos', details: error.issues },
         { status: 400 }
       );
     }
@@ -140,10 +141,10 @@ export async function PUT(
 // DELETE - Deletar eleitor
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
     
     // Verificar se eleitor existe
     const existingEleitor = await prisma.eleitor.findUnique({
