@@ -47,46 +47,151 @@ model Usuario {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  // Relacionamento: eleitores cadastrados por este usuário
-  eleitores   Eleitor[]
+  // Relacionamentos
+  eleitores           Eleitor[]
+  subgruposResponsavel Subgrupo[]
 
   @@map("usuarios")
 }
 
 model Eleitor {
   id                String        @id @default(uuid())
-  
+
   // Dados pessoais
   nomeCompleto      String
-  cpf               String        @unique
+  cpf               String?       @unique
   dataNascimento    DateTime
   telefone          String
   email             String?
   genero            Genero
-  escolaridade      Escolaridade
-  
+  escolaridade      Escolaridade  @default(MEDIO_COMPLETO)
+
   // Endereço
-  cep               String
-  logradouro        String
-  numero            String
+  cep               String?
+  logradouro        String?
+  numero            String?
   complemento       String?
-  bairro            String
+  bairro            String?
   cidade            String
-  uf                String
-  
+  uf                String        @default("SP")
+
   // Dados eleitorais
   zonaEleitoral     String?
   secao             String?
-  
-  // Relacionamento com o líder que cadastrou
+
+  // Relacionamentos
   criadoPorId       String
   criadoPor         Usuario       @relation(fields: [criadoPorId], references: [id])
-  
+
+  grupoId           String?
+  grupo             Grupo?        @relation(fields: [grupoId], references: [id])
+
+  subgrupoId        String?
+  subgrupo          Subgrupo?     @relation(fields: [subgrupoId], references: [id])
+
+  // Metadados
+  origem            String?       // "manual", "link_presenca", "importacao"
+  eventoId          String?       // ID do evento de presença (se aplicável)
+
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
-  
+
   @@map("eleitores")
   @@index([criadoPorId])
   @@index([cidade])
   @@index([uf])
+  @@index([grupoId])
+  @@index([subgrupoId])
+}
+
+// Grupos de organização
+model Grupo {
+  id          String      @id @default(uuid())
+  nome        String
+  descricao   String?
+  cor         String?     // Cor para identificação visual
+  ativo       Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relacionamentos
+  subgrupos   Subgrupo[]
+  eleitores   Eleitor[]
+
+  @@map("grupos")
+}
+
+// Subgrupos dentro de Grupos
+model Subgrupo {
+  id              String    @id @default(uuid())
+  nome            String
+  descricao       String?
+  ativo           Boolean   @default(true)
+
+  // Relacionamento com Grupo
+  grupoId         String
+  grupo           Grupo     @relation(fields: [grupoId], references: [id], onDelete: Cascade)
+
+  // Responsável pelo subgrupo
+  responsavelId   String
+  responsavel     Usuario   @relation(fields: [responsavelId], references: [id])
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relacionamentos
+  eleitores       Eleitor[]
+  eventosPresenca EventoPresenca[]
+
+  @@map("subgrupos")
+  @@index([grupoId])
+  @@index([responsavelId])
+}
+
+// Eventos de presença (links para marcar presença)
+model EventoPresenca {
+  id              String    @id @default(uuid())
+  titulo          String
+  descricao       String?
+  dataEvento      DateTime
+  local           String?
+  linkUnico       String    @unique // Token único para o link
+  ativo           Boolean   @default(true)
+  limite          Int?      // Limite de participantes (opcional)
+
+  // Relacionamento com Subgrupo
+  subgrupoId      String
+  subgrupo        Subgrupo  @relation(fields: [subgrupoId], references: [id], onDelete: Cascade)
+
+  // Estatísticas
+  totalConfirmacoes Int     @default(0)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  expiraEm        DateTime? // Data de expiração do link
+
+  @@map("eventos_presenca")
+  @@index([subgrupoId])
+  @@index([linkUnico])
+}
+
+// Modelo para configuração de campos de formulários
+model CampoFormulario {
+  id              String    @id @default(uuid())
+  formulario      String    // Nome do formulário (ex: "eleitor", "usuario")
+  nomeCampo       String    // Nome do campo (ex: "email", "telefone")
+  label           String    // Label exibido no formulário
+  tipo            String    // Tipo do campo (text, email, number, select, etc)
+  obrigatorio     Boolean   @default(false)
+  ativo           Boolean   @default(true) // Se o campo está ativo/visível
+  ordem           Int       @default(0) // Ordem de exibição
+  validacao       Json?     // Regras de validação adicionais (JSON)
+  opcoes          Json?     // Opções para selects/radios (JSON)
+  placeholder     String?   // Placeholder do campo
+  ajuda           String?   // Texto de ajuda
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([formulario, nomeCampo])
+  @@map("campos_formulario")
 }

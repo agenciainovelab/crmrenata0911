@@ -60,12 +60,15 @@ export default function UsuariosPage() {
       const response = await fetch("/api/usuarios");
       if (response.ok) {
         const data = await response.json();
-        setUsuarios(data);
+        // Garantir que data é um array
+        setUsuarios(Array.isArray(data) ? data : data.usuarios || []);
       } else {
         console.error("Erro ao carregar usuários");
+        setUsuarios([]);
       }
     } catch (error) {
       console.error("Erro ao carregar usuários:", error);
+      setUsuarios([]);
     } finally {
       setLoading(false);
     }
@@ -75,14 +78,16 @@ export default function UsuariosPage() {
     carregarUsuarios();
   }, []);
 
-  // Filtrar usuários
-  const usuariosFiltrados = usuarios.filter((user) => {
-    const matchRole = filtroRole === "todos" || user.role === filtroRole;
-    const matchBusca =
-      user.nome.toLowerCase().includes(busca.toLowerCase()) ||
-      user.email.toLowerCase().includes(busca.toLowerCase());
-    return matchRole && matchBusca;
-  });
+  // Filtrar usuários (com verificação de segurança)
+  const usuariosFiltrados = Array.isArray(usuarios)
+    ? usuarios.filter((user) => {
+        const matchRole = filtroRole === "todos" || user.role === filtroRole;
+        const matchBusca =
+          user.nome.toLowerCase().includes(busca.toLowerCase()) ||
+          user.email.toLowerCase().includes(busca.toLowerCase());
+        return matchRole && matchBusca;
+      })
+    : [];
 
   // Abrir modal para criar
   const handleNovo = () => {

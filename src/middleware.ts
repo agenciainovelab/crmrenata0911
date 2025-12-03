@@ -7,10 +7,10 @@ const JWT_SECRET = new TextEncoder().encode(
 );
 
 // Rotas públicas que não requerem autenticação
-const publicRoutes = ['/auth/sign-in', '/auth/forgot-password', '/auth/reset-password'];
+const publicRoutes = ['/auth/sign-in', '/auth/forgot-password', '/auth/reset-password', '/presenca'];
 
 // Rotas de API públicas
-const publicApiRoutes = ['/api/auth/login', '/api/auth/register'];
+const publicApiRoutes = ['/api/auth/login', '/api/auth/register', '/api/presenca'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

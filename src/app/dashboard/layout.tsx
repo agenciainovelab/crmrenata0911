@@ -35,7 +35,7 @@ export default function DashboardLayout({
       <Sidebar />
       <div className="w-full bg-gray-2 dark:bg-[#020d1a] overflow-x-hidden">
         <Header />
-        <main className="isolate mx-auto w-full max-w-screen-2xl overflow-x-hidden p-4 md:p-6 2xl:p-10">
+        <main className="mx-auto w-full max-w-screen-2xl overflow-x-hidden p-4 md:p-6 2xl:p-10">
           {children}
         </main>
         <footer className="border-t border-stroke py-4 text-center text-sm text-dark-5 dark:border-dark-3 dark:text-dark-6">

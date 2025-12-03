@@ -25,7 +25,20 @@
       "Bash(taskkill:*)",
       "Bash(pkill:*)",
       "Bash(npm run dev:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(if exist .next rmdir /s /q .next)",
+      "Bash(npm uninstall:*)",
+      "Bash(DATABASE_URL=\"postgresql://crm:Leo07102008%40%23%40@31.97.172.127:5432/renata?schema=public\" npx prisma generate:*)",
+      "Bash(node test-db.js:*)",
+      "Bash(node test-credentials.js:*)",
+      "Bash(where:*)",
+      "Bash(node test-trust.js:*)",
+      "Bash(node test-exact-creds.js:*)",
+      "Bash(node:*)",
+      "Bash(DATABASE_URL=\"postgresql://crm:Leo07102008%40%23%40@31.97.172.127:2/renata?sslmode=disable\" npx prisma migrate dev:*)",
+      "Bash(DATABASE_URL=\"postgresql://crm:Leo07102008%40%23%40@31.97.172.127:2/renata?sslmode=disable\" npx prisma db push)",
+      "Bash(DATABASE_URL=\"postgresql://crm:Leo07102008%40%23%40@31.97.172.127:2/renata?sslmode=disable\" npx prisma generate:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

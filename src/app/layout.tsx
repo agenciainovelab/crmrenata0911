@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body>
+      <body suppressHydrationWarning>
         <Providers>
           <NextTopLoader color="#7B2CBF" showSpinner={false} />
           {children}

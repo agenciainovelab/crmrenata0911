@@ -13,10 +13,12 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const search = searchParams.get('search') || '';
-    
+    const subgrupoId = searchParams.get('subgrupoId') || '';
+    const grupoId = searchParams.get('grupoId') || '';
+
     // Gerar chave de cache única baseada nos parâmetros
-    const cacheKey = `${CACHE_KEY_PREFIX}:list:page${page}:limit${limit}:search${search}`;
-    
+    const cacheKey = `${CACHE_KEY_PREFIX}:list:page${page}:limit${limit}:search${search}:subgrupo${subgrupoId}:grupo${grupoId}`;
+
     // Tentar obter do cache primeiro
     const cachedData = await getCache<any>(cacheKey);
     if (cachedData) {
@@ -25,12 +27,12 @@ export async function GET(request: NextRequest) {
       response.headers.set('X-Cache', 'HIT');
       return response;
     }
-    
+
     console.log(`❌ Cache MISS: ${cacheKey}`);
-    
+
     const skip = (page - 1) * limit;
-    
-    const where = search
+
+    const where: any = search
       ? {
           OR: [
             { nomeCompleto: { contains: search, mode: 'insensitive' as const } },
@@ -39,6 +41,14 @@ export async function GET(request: NextRequest) {
           ],
         }
       : {};
+
+    // Adicionar filtros de grupo e subgrupo
+    if (subgrupoId) {
+      where.subgrupoId = subgrupoId;
+    }
+    if (grupoId) {
+      where.grupoId = grupoId;
+    }
     
     // Buscar eleitores e total em paralelo com select otimizado
     const [eleitores, total] = await Promise.all([

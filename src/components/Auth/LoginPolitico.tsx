@@ -34,12 +34,12 @@ export default function LoginPolitico() {
         return;
       }
 
-      const userData = await response.json();
+      const result = await response.json();
 
       // Salvar estado de autenticação
       localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("userId", userData.id);
-      localStorage.setItem("userEmail", userData.email);
+      localStorage.setItem("userId", result.user.id);
+      localStorage.setItem("userEmail", result.user.email);
 
       // Redirecionar para dashboard
       router.push("/dashboard");

@@ -134,7 +134,7 @@ export default function EleitoresPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {eleitor.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')}
+                        {eleitor.cpf ? eleitor.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') : '-'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

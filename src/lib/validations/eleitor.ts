@@ -34,9 +34,9 @@ export const eleitorSchema = z.object({
   cidade: z.string().min(2, 'Cidade é obrigatória'),
   uf: z.string().length(2, 'UF deve ter 2 caracteres'),
   
-  // Dados eleitorais
-  zonaEleitoral: z.string().optional(),
-  secao: z.string().optional(),
+  // Dados eleitorais (aceita string vazia ou undefined)
+  zonaEleitoral: z.string().optional().or(z.literal('')),
+  secao: z.string().optional().or(z.literal('')),
   
   // Relacionamento
   criadoPorId: z.string().uuid('ID do líder inválido'),

@@ -1,13 +1,14 @@
 import * as Icons from "../icons";
-import { 
-  LayoutDashboard, 
-  Users, 
-  GitBranch, 
-  Megaphone, 
-  MessageSquare, 
-  Brain, 
-  BarChart3, 
-  Settings 
+import {
+  LayoutDashboard,
+  Users,
+  GitBranch,
+  Megaphone,
+  MessageSquare,
+  Brain,
+  BarChart3,
+  Settings,
+  Calendar
 } from "lucide-react";
 
 export const NAV_DATA = [
@@ -36,6 +37,12 @@ export const NAV_DATA = [
         title: "Eleitores",
         url: "/dashboard/eleitores",
         icon: Users,
+        items: [],
+      },
+      {
+        title: "Reuniões",
+        url: "/dashboard/reunioes",
+        icon: Calendar,
         items: [],
       },
       {
