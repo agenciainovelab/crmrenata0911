@@ -104,3 +104,4 @@ Este é um **frontend completo** pronto para ser integrado com:
 **Campanha Inteligente © 2025**
 
 *Baseado no template NextAdminHQ - veja [README-ORIGINAL.md](README-ORIGINAL.md) para informações do template base.*
+
