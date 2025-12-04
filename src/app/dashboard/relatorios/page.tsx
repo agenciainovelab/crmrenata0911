@@ -534,7 +534,7 @@ export default function RelatoriosPage() {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ status, valor }) => `${status}: ${valor}`}
+                label={(props: any) => `${props.status}: ${props.valor}`}
                 outerRadius={100}
                 fill="#8884d8"
                 dataKey="valor"
