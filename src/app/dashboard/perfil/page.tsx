@@ -11,7 +11,7 @@ interface PerfilData {
   email: string;
   telefone?: string;
   role: string;
-  foto?: string;
+  foto?: string | null;
   cadastradosTotal: number;
   dataCadastro: string;
 }
@@ -47,6 +47,7 @@ export default function PerfilPage() {
   const [previewFoto, setPreviewFoto] = useState<string | null>(null);
   const [fotoFile, setFotoFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [fotoError, setFotoError] = useState(false);
 
   useEffect(() => {
     carregarPerfil();
@@ -75,12 +76,13 @@ export default function PerfilPage() {
         email: usuario.email,
         telefone: usuario.telefone || "",
         role: usuario.role,
-        foto: usuario.foto || "/images/user/user-03.png",
-        cadastradosTotal: usuario._count?.eleitores || 0,
-        dataCadastro: usuario.createdAt,
+        foto: usuario.foto || null,
+        cadastradosTotal: usuario.cadastradosTotal || usuario._count?.eleitores || 0,
+        dataCadastro: usuario.dataCadastro || usuario.createdAt,
       };
 
       setPerfil(perfilData);
+      setFotoError(false);
       setFormData({
         nome: perfilData.nome,
         email: perfilData.email,
@@ -291,17 +293,29 @@ export default function PerfilPage() {
             {/* Foto */}
             <div className="relative">
               <div className="h-32 w-32 overflow-hidden rounded-full border-4 border-stroke dark:border-dark-3">
-                {previewFoto || perfil.foto ? (
+                {previewFoto ? (
                   <Image
-                    src={previewFoto || perfil.foto || "/images/user/user-03.png"}
+                    src={previewFoto}
                     alt={perfil.nome}
                     width={128}
                     height={128}
                     className="h-full w-full object-cover"
                   />
+                ) : perfil.foto && !fotoError ? (
+                  <Image
+                    src={perfil.foto}
+                    alt={perfil.nome}
+                    width={128}
+                    height={128}
+                    className="h-full w-full object-cover"
+                    onError={() => setFotoError(true)}
+                    unoptimized
+                  />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-gray-2 dark:bg-dark-2">
-                    <User className="h-16 w-16 text-dark-5" />
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 to-primary/40 dark:from-primary/30 dark:to-primary/50">
+                    <span className="text-3xl font-bold text-primary">
+                      {perfil.nome.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()}
+                    </span>
                   </div>
                 )}
               </div>
@@ -339,7 +353,9 @@ export default function PerfilPage() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-dark-5 dark:text-dark-6">Membro desde</span>
                 <span className="font-semibold text-dark dark:text-white">
-                  {new Date(perfil.dataCadastro).toLocaleDateString("pt-BR")}
+                  {perfil.dataCadastro && !isNaN(new Date(perfil.dataCadastro).getTime())
+                    ? new Date(perfil.dataCadastro).toLocaleDateString("pt-BR")
+                    : "-"}
                 </span>
               </div>
             </div>

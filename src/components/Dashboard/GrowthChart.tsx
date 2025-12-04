@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -12,45 +11,26 @@ import {
   Legend,
 } from "recharts";
 
-const mockData = [
-  { mes: "Jan", admins: 12, lideres: 45, pessoas: 230 },
-  { mes: "Fev", admins: 15, lideres: 58, pessoas: 310 },
-  { mes: "Mar", admins: 18, lideres: 72, pessoas: 425 },
-  { mes: "Abr", admins: 22, lideres: 89, pessoas: 580 },
-  { mes: "Mai", admins: 28, lideres: 105, pessoas: 720 },
-  { mes: "Jun", admins: 35, lideres: 128, pessoas: 890 },
+interface GrowthChartProps {
+  data?: Array<{
+    mes: string;
+    admins: number;
+    lideres: number;
+    pessoas: number;
+  }>;
+}
+
+const defaultData = [
+  { mes: "Jan", admins: 0, lideres: 0, pessoas: 0 },
+  { mes: "Fev", admins: 0, lideres: 0, pessoas: 0 },
+  { mes: "Mar", admins: 0, lideres: 0, pessoas: 0 },
+  { mes: "Abr", admins: 0, lideres: 0, pessoas: 0 },
+  { mes: "Mai", admins: 0, lideres: 0, pessoas: 0 },
+  { mes: "Jun", admins: 0, lideres: 0, pessoas: 0 },
 ];
 
-export default function GrowthChart() {
-  const [loading, setLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setTimeout(() => setLoading(false), 300);
-          return 100;
-        }
-        return prev + 25;
-      });
-    }, 300);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="rounded-xl bg-white p-6 shadow-card dark:bg-gray-dark">
-        <div className="mb-4 h-6 w-48 animate-pulse rounded bg-gray-3 dark:bg-dark-3"></div>
-        <div className="h-80 animate-pulse rounded-lg bg-gray-3 dark:bg-dark-3"></div>
-        <div className="mt-4 text-center text-sm text-primary">
-          Carregando gráfico {progress}%
-        </div>
-      </div>
-    );
-  }
+export default function GrowthChart({ data }: GrowthChartProps) {
+  const chartData = data && data.length > 0 ? data : defaultData;
 
   return (
     <div className="rounded-xl bg-white p-6 shadow-card dark:bg-gray-dark">
@@ -58,7 +38,7 @@ export default function GrowthChart() {
         Crescimento da Base
       </h3>
       <ResponsiveContainer width="100%" height={320}>
-        <LineChart data={mockData}>
+        <LineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
           <XAxis
             dataKey="mes"

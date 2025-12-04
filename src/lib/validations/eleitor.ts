@@ -37,9 +37,13 @@ export const eleitorSchema = z.object({
   // Dados eleitorais (aceita string vazia ou undefined)
   zonaEleitoral: z.string().optional().or(z.literal('')),
   secao: z.string().optional().or(z.literal('')),
-  
+
   // Relacionamento
   criadoPorId: z.string().uuid('ID do líder inválido'),
+
+  // Grupo e Subgrupo (opcionais)
+  grupoId: z.string().uuid('ID do grupo inválido').optional().or(z.literal('')),
+  subgrupoId: z.string().uuid('ID do subgrupo inválido').optional().or(z.literal('')),
 });
 
 export type EleitorInput = z.infer<typeof eleitorSchema>;

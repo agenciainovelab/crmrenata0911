@@ -92,6 +92,10 @@ model Eleitor {
   // Metadados
   origem            String?       // "manual", "link_presenca", "importacao"
   eventoId          String?       // ID do evento de presença (se aplicável)
+  exportado         Boolean       @default(false)  // Se foi exportado
+  exportadoEm       DateTime?     // Data de exportação
+  aquecido          Boolean       @default(false)  // Se está "aquecido" (engajado)
+  aquecidoEm        DateTime?     // Data do aquecimento
 
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt

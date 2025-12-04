@@ -96,13 +96,18 @@ export async function PUT(
       }
     }
     
+    // Preparar dados para atualização
+    const { grupoId, subgrupoId, ...restData } = validatedData;
+
     // Atualizar eleitor
     const eleitor = await prisma.eleitor.update({
       where: { id },
       data: {
-        ...validatedData,
+        ...restData,
         dataNascimento: new Date(validatedData.dataNascimento),
         email: validatedData.email || null,
+        grupoId: grupoId || null,
+        subgrupoId: subgrupoId || null,
       },
       include: {
         criadoPor: {
@@ -111,6 +116,18 @@ export async function PUT(
             nome: true,
             email: true,
             role: true,
+          },
+        },
+        grupo: {
+          select: {
+            id: true,
+            nome: true,
+          },
+        },
+        subgrupo: {
+          select: {
+            id: true,
+            nome: true,
           },
         },
       },

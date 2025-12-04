@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { User, MapPin, FileText, Loader2, CheckCircle, Users, AlertTriangle, Trash2, Edit, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { User, MapPin, FileText, Loader2, CheckCircle, Users } from 'lucide-react';
 
 interface Grupo {
   id: string;
@@ -15,26 +15,6 @@ interface Subgrupo {
   nome: string;
   grupoId: string;
   ativo: boolean;
-  grupo?: {
-    id: string;
-    nome: string;
-  };
-}
-
-interface EleitorDuplicado {
-  id: string;
-  nomeCompleto: string;
-  cpf: string;
-  telefone: string;
-  email?: string;
-  cidade: string;
-  uf: string;
-  bairro?: string;
-  dataNascimento: string;
-  grupo?: { id: string; nome: string };
-  subgrupo?: { id: string; nome: string };
-  criadoPor?: { id: string; nome: string };
-  createdAt: string;
 }
 
 interface FormData {
@@ -56,28 +36,24 @@ interface FormData {
   secao: string;
   grupoId: string;
   subgrupoId: string;
+  criadoPorId: string;
 }
 
 interface Props {
+  eleitorId: string;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-export default function FormularioCadastroEleitor({ onClose, onSuccess }: Props) {
+export default function FormularioEdicaoEleitor({ eleitorId, onClose, onSuccess }: Props) {
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
   const [loadingCep, setLoadingCep] = useState(false);
   const [loadingStep, setLoadingStep] = useState('');
   const [grupos, setGrupos] = useState<Grupo[]>([]);
   const [subgrupos, setSubgrupos] = useState<Subgrupo[]>([]);
   const [subgruposFiltrados, setSubgruposFiltrados] = useState<Subgrupo[]>([]);
-  const [loadingGrupos, setLoadingGrupos] = useState(true);
-
-  // Estado para duplicados
-  const [duplicados, setDuplicados] = useState<EleitorDuplicado[]>([]);
-  const [showDuplicadosModal, setShowDuplicadosModal] = useState(false);
-  const [verificandoDuplicados, setVerificandoDuplicados] = useState(false);
-  const [deletandoDuplicado, setDeletandoDuplicado] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
     nomeCompleto: '',
@@ -98,6 +74,7 @@ export default function FormularioCadastroEleitor({ onClose, onSuccess }: Props)
     secao: '',
     grupoId: '',
     subgrupoId: '',
+    criadoPorId: '',
   });
 
   const tabs = [
@@ -107,29 +84,29 @@ export default function FormularioCadastroEleitor({ onClose, onSuccess }: Props)
     { id: 3, label: 'Dados Eleitorais', icon: FileText },
   ];
 
+  // Carregar dados do eleitor e grupos/subgrupos ao montar
   useEffect(() => {
-    carregarGruposESubgrupos();
-  }, []);
+    carregarDados();
+  }, [eleitorId]);
 
+  // Filtrar subgrupos quando o grupo mudar
   useEffect(() => {
     if (formData.grupoId) {
       const filtrados = subgrupos.filter(s => s.grupoId === formData.grupoId);
       setSubgruposFiltrados(filtrados);
-      if (formData.subgrupoId && !filtrados.find(s => s.id === formData.subgrupoId)) {
-        setFormData(prev => ({ ...prev, subgrupoId: '' }));
-      }
     } else {
       setSubgruposFiltrados([]);
-      setFormData(prev => ({ ...prev, subgrupoId: '' }));
     }
   }, [formData.grupoId, subgrupos]);
 
-  const carregarGruposESubgrupos = async () => {
-    setLoadingGrupos(true);
+  const carregarDados = async () => {
+    setLoadingData(true);
     try {
-      const [gruposRes, subgruposRes] = await Promise.all([
+      // Carregar grupos, subgrupos e dados do eleitor em paralelo
+      const [gruposRes, subgruposRes, eleitorRes] = await Promise.all([
         fetch('/api/grupos'),
         fetch('/api/subgrupos'),
+        fetch(`/api/eleitores/${eleitorId}`),
       ]);
 
       if (gruposRes.ok) {
@@ -141,57 +118,56 @@ export default function FormularioCadastroEleitor({ onClose, onSuccess }: Props)
         const subgruposData = await subgruposRes.json();
         setSubgrupos(subgruposData.filter((s: Subgrupo) => s.ativo !== false));
       }
-    } catch (error) {
-      console.error('Erro ao carregar grupos/subgrupos:', error);
-    } finally {
-      setLoadingGrupos(false);
-    }
-  };
 
-  // Verificar duplicados
-  const verificarDuplicados = useCallback(async (cpf: string, telefone: string) => {
-    const cpfLimpo = cpf.replace(/\D/g, '');
-    const telefoneLimpo = telefone.replace(/\D/g, '');
+      if (eleitorRes.ok) {
+        const eleitor = await eleitorRes.json();
 
-    if (cpfLimpo.length < 11 && telefoneLimpo.length < 10) return;
+        // Formatar data para input date
+        const dataNascimento = eleitor.dataNascimento
+          ? new Date(eleitor.dataNascimento).toISOString().split('T')[0]
+          : '';
 
-    setVerificandoDuplicados(true);
-    try {
-      const response = await fetch('/api/eleitores/verificar-duplicado', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cpf: cpfLimpo, telefone: telefoneLimpo }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.hasDuplicado && data.duplicados.length > 0) {
-          setDuplicados(data.duplicados);
-          setShowDuplicadosModal(true);
-        } else {
-          setDuplicados([]);
-        }
+        setFormData({
+          nomeCompleto: eleitor.nomeCompleto || '',
+          cpf: eleitor.cpf || '',
+          dataNascimento,
+          telefone: eleitor.telefone || '',
+          email: eleitor.email || '',
+          genero: eleitor.genero || 'NAO_INFORMAR',
+          escolaridade: eleitor.escolaridade || 'MEDIO_COMPLETO',
+          cep: eleitor.cep || '',
+          logradouro: eleitor.logradouro || '',
+          numero: eleitor.numero || '',
+          complemento: eleitor.complemento || '',
+          bairro: eleitor.bairro || '',
+          cidade: eleitor.cidade || '',
+          uf: eleitor.uf || '',
+          zonaEleitoral: eleitor.zonaEleitoral || '',
+          secao: eleitor.secao || '',
+          grupoId: eleitor.grupoId || '',
+          subgrupoId: eleitor.subgrupoId || '',
+          criadoPorId: eleitor.criadoPorId || '',
+        });
+      } else {
+        alert('Erro ao carregar dados do eleitor');
+        onClose();
       }
     } catch (error) {
-      console.error('Erro ao verificar duplicados:', error);
+      console.error('Erro ao carregar dados:', error);
+      alert('Erro ao carregar dados');
+      onClose();
     } finally {
-      setVerificandoDuplicados(false);
+      setLoadingData(false);
     }
-  }, []);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
 
-  const handleCpfBlur = () => {
-    if (formData.cpf.replace(/\D/g, '').length === 11) {
-      verificarDuplicados(formData.cpf, formData.telefone);
-    }
-  };
-
-  const handleTelefoneBlur = () => {
-    if (formData.telefone.replace(/\D/g, '').length >= 10) {
-      verificarDuplicados(formData.cpf, formData.telefone);
+    // Se mudou o grupo, limpar o subgrupo
+    if (name === 'grupoId') {
+      setFormData(prev => ({ ...prev, subgrupoId: '' }));
     }
   };
 
@@ -204,13 +180,13 @@ export default function FormularioCadastroEleitor({ onClose, onSuccess }: Props)
       const response = await fetch(`/api/cep/${cep}`);
       if (response.ok) {
         const data = await response.json();
-        setFormData({
-          ...formData,
+        setFormData(prev => ({
+          ...prev,
           logradouro: data.logradouro || '',
           bairro: data.bairro || '',
           cidade: data.cidade || '',
           uf: data.uf || '',
-        });
+        }));
       }
     } catch (error) {
       console.error('Erro ao buscar CEP:', error);
@@ -219,77 +195,20 @@ export default function FormularioCadastroEleitor({ onClose, onSuccess }: Props)
     }
   };
 
-  const handleExcluirDuplicado = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir este registro duplicado?')) return;
-
-    setDeletandoDuplicado(id);
-    try {
-      const response = await fetch(`/api/eleitores/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        setDuplicados(prev => prev.filter(d => d.id !== id));
-        if (duplicados.length <= 1) {
-          setShowDuplicadosModal(false);
-        }
-      } else {
-        alert('Erro ao excluir duplicado');
-      }
-    } catch (error) {
-      console.error('Erro ao excluir duplicado:', error);
-      alert('Erro ao excluir duplicado');
-    } finally {
-      setDeletandoDuplicado(null);
-    }
-  };
-
-  const handleEditarDuplicado = (duplicado: EleitorDuplicado) => {
-    // Preencher o formulário com os dados do duplicado para edição
-    const dataNascimento = duplicado.dataNascimento
-      ? new Date(duplicado.dataNascimento).toISOString().split('T')[0]
-      : '';
-
-    setFormData({
-      ...formData,
-      nomeCompleto: duplicado.nomeCompleto || '',
-      cpf: duplicado.cpf || '',
-      dataNascimento,
-      telefone: duplicado.telefone || '',
-      email: duplicado.email || '',
-      cidade: duplicado.cidade || '',
-      uf: duplicado.uf || '',
-      bairro: duplicado.bairro || '',
-      grupoId: duplicado.grupo?.id || '',
-      subgrupoId: duplicado.subgrupo?.id || '',
-    });
-
-    setShowDuplicadosModal(false);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      setLoadingStep('Salvando 1/3...');
-      await new Promise((resolve) => setTimeout(resolve, 600));
+      setLoadingStep('Atualizando dados...');
 
-      setLoadingStep('Salvando 2/3...');
-      await new Promise((resolve) => setTimeout(resolve, 600));
-
-      setLoadingStep('Salvando 3/3...');
-
-      const criadoPorId = localStorage.getItem('userId') || 'e7df2bac-4e2b-4184-848b-6270a9205098';
-
-      const response = await fetch('/api/eleitores', {
-        method: 'POST',
+      const response = await fetch(`/api/eleitores/${eleitorId}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
           cpf: formData.cpf.replace(/\D/g, ''),
           cep: formData.cep.replace(/\D/g, ''),
-          criadoPorId,
           grupoId: formData.grupoId || undefined,
           subgrupoId: formData.subgrupoId || undefined,
         }),
@@ -301,21 +220,27 @@ export default function FormularioCadastroEleitor({ onClose, onSuccess }: Props)
         onSuccess();
       } else {
         const error = await response.json();
-        alert(error.error || 'Erro ao cadastrar eleitor');
+        alert(error.error || 'Erro ao atualizar eleitor');
       }
     } catch (error) {
-      console.error('Erro ao cadastrar:', error);
-      alert('Erro ao cadastrar eleitor');
+      console.error('Erro ao atualizar:', error);
+      alert('Erro ao atualizar eleitor');
     } finally {
       setLoading(false);
       setLoadingStep('');
     }
   };
 
-  const formatarData = (data: string) => {
-    if (!data) return '-';
-    return new Date(data).toLocaleDateString('pt-BR');
-  };
+  if (loadingData) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-gray-500 dark:text-gray-400">Carregando dados do eleitor...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -360,14 +285,13 @@ export default function FormularioCadastroEleitor({ onClose, onSuccess }: Props)
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                CPF * {verificandoDuplicados && <Loader2 className="inline w-4 h-4 animate-spin ml-1" />}
+                CPF *
               </label>
               <input
                 type="text"
                 name="cpf"
                 value={formData.cpf}
                 onChange={handleChange}
-                onBlur={handleCpfBlur}
                 placeholder="000.000.000-00"
                 required
                 maxLength={14}
@@ -391,14 +315,13 @@ export default function FormularioCadastroEleitor({ onClose, onSuccess }: Props)
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Telefone * {verificandoDuplicados && <Loader2 className="inline w-4 h-4 animate-spin ml-1" />}
+                Telefone *
               </label>
               <input
                 type="tel"
                 name="telefone"
                 value={formData.telefone}
                 onChange={handleChange}
-                onBlur={handleTelefoneBlur}
                 placeholder="(00) 00000-0000"
                 required
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:text-white"
@@ -584,26 +507,19 @@ export default function FormularioCadastroEleitor({ onClose, onSuccess }: Props)
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Grupo
               </label>
-              {loadingGrupos ? (
-                <div className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span className="text-gray-500">Carregando grupos...</span>
-                </div>
-              ) : (
-                <select
-                  name="grupoId"
-                  value={formData.grupoId}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:text-white"
-                >
-                  <option value="">Selecione um grupo (opcional)</option>
-                  {grupos.map((grupo) => (
-                    <option key={grupo.id} value={grupo.id}>
-                      {grupo.nome}
-                    </option>
-                  ))}
-                </select>
-              )}
+              <select
+                name="grupoId"
+                value={formData.grupoId}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:text-white"
+              >
+                <option value="">Selecione um grupo (opcional)</option>
+                {grupos.map((grupo) => (
+                  <option key={grupo.id} value={grupo.id}>
+                    {grupo.nome}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
@@ -634,17 +550,9 @@ export default function FormularioCadastroEleitor({ onClose, onSuccess }: Props)
 
             <div className="md:col-span-2 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
               <p className="text-sm text-purple-800 dark:text-purple-300">
-                <strong>Dica:</strong> Vincular o eleitor a um grupo e subgrupo facilita a organização e permite gerar relatórios segmentados. Os grupos e subgrupos podem ser criados em <strong>Configurações</strong>.
+                <strong>Dica:</strong> Vincular o eleitor a um grupo e subgrupo facilita a organização e permite gerar relatórios segmentados.
               </p>
             </div>
-
-            {grupos.length === 0 && !loadingGrupos && (
-              <div className="md:col-span-2 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                <p className="text-sm text-yellow-800 dark:text-yellow-300">
-                  <strong>Atenção:</strong> Nenhum grupo cadastrado. Para vincular eleitores a grupos, primeiro cadastre os grupos em <strong>Configurações &gt; Grupos</strong>.
-                </p>
-              </div>
-            )}
           </div>
         )}
 
@@ -679,7 +587,7 @@ export default function FormularioCadastroEleitor({ onClose, onSuccess }: Props)
 
             <div className="md:col-span-2 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
               <p className="text-sm text-blue-800 dark:text-blue-300">
-                <strong>Informação:</strong> Os dados eleitorais são opcionais e podem ser preenchidos posteriormente.
+                <strong>Informação:</strong> Os dados eleitorais são opcionais.
               </p>
             </div>
           </div>
@@ -730,7 +638,7 @@ export default function FormularioCadastroEleitor({ onClose, onSuccess }: Props)
                 ) : (
                   <>
                     <CheckCircle className="w-5 h-5" />
-                    Salvar Eleitor
+                    Salvar Alterações
                   </>
                 )}
               </button>
@@ -738,114 +646,6 @@ export default function FormularioCadastroEleitor({ onClose, onSuccess }: Props)
           </div>
         </div>
       </form>
-
-      {/* Modal de Duplicados */}
-      {showDuplicadosModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
-                  <AlertTriangle className="w-6 h-6 text-yellow-600" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    Possíveis Duplicados Encontrados
-                  </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Foram encontrados {duplicados.length} registro(s) com CPF ou telefone semelhante
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowDuplicadosModal(false)}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-4 overflow-y-auto max-h-[60vh]">
-              <div className="space-y-4">
-                {duplicados.map((duplicado) => (
-                  <div
-                    key={duplicado.id}
-                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-4"
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white text-lg">
-                          {duplicado.nomeCompleto}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Cadastrado em {formatarData(duplicado.createdAt)}
-                          {duplicado.criadoPor && ` por ${duplicado.criadoPor.nome}`}
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEditarDuplicado(duplicado)}
-                          className="flex items-center gap-1 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 text-sm font-medium"
-                        >
-                          <Edit className="w-4 h-4" />
-                          Usar dados
-                        </button>
-                        <button
-                          onClick={() => handleExcluirDuplicado(duplicado.id)}
-                          disabled={deletandoDuplicado === duplicado.id}
-                          className="flex items-center gap-1 px-3 py-1.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 text-sm font-medium disabled:opacity-50"
-                        >
-                          {deletandoDuplicado === duplicado.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="w-4 h-4" />
-                          )}
-                          Excluir
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                      <div>
-                        <span className="text-gray-500 dark:text-gray-400">CPF:</span>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {duplicado.cpf ? duplicado.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') : '-'}
-                        </p>
-                      </div>
-                      <div>
-                        <span className="text-gray-500 dark:text-gray-400">Telefone:</span>
-                        <p className="font-medium text-gray-900 dark:text-white">{duplicado.telefone}</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-500 dark:text-gray-400">Cidade:</span>
-                        <p className="font-medium text-gray-900 dark:text-white">{duplicado.cidade}/{duplicado.uf}</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-500 dark:text-gray-400">Grupo:</span>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {duplicado.grupo?.nome || '-'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-between">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Você pode continuar cadastrando ou usar/excluir os registros existentes
-              </p>
-              <button
-                onClick={() => setShowDuplicadosModal(false)}
-                className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90"
-              >
-                Continuar Cadastro
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -22,10 +22,11 @@ interface UserData {
 export function UserInfo() {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+  const [imgError, setImgError] = useState(false);
   const [user, setUser] = useState<UserData>({
     name: "Usuário",
     email: "",
-    img: "/images/user/user-03.png",
+    img: "",
   });
 
   useEffect(() => {
@@ -44,8 +45,9 @@ export function UserInfo() {
       setUser({
         name: userData.nome,
         email: userData.email,
-        img: userData.foto || "/images/user/user-03.png",
+        img: userData.foto || "",
       });
+      setImgError(false);
     } catch (error) {
       console.error("Erro ao carregar dados do usuário:", error);
     }
@@ -64,14 +66,24 @@ export function UserInfo() {
         <span className="sr-only">Minha Conta</span>
 
         <figure className="flex items-center gap-3 cursor-pointer">
-          <Image
-            src={user.img}
-            className="size-12 rounded-full object-cover"
-            alt={`Avatar de ${user.name}`}
-            role="presentation"
-            width={200}
-            height={200}
-          />
+          {user.img && !imgError ? (
+            <Image
+              src={user.img}
+              className="size-12 rounded-full object-cover"
+              alt={`Avatar de ${user.name}`}
+              role="presentation"
+              width={200}
+              height={200}
+              onError={() => setImgError(true)}
+              unoptimized
+            />
+          ) : (
+            <div className="size-12 rounded-full bg-gradient-to-br from-primary/60 to-primary flex items-center justify-center">
+              <span className="text-lg font-bold text-white">
+                {user.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()}
+              </span>
+            </div>
+          )}
         </figure>
       </DropdownTrigger>
 
@@ -82,14 +94,24 @@ export function UserInfo() {
         <h2 className="sr-only">Informações do Usuário</h2>
 
         <figure className="flex items-center gap-2.5 px-5 py-3.5">
-          <Image
-            src={user.img}
-            className="size-12 rounded-full object-cover"
-            alt={`Avatar de ${user.name}`}
-            role="presentation"
-            width={200}
-            height={200}
-          />
+          {user.img && !imgError ? (
+            <Image
+              src={user.img}
+              className="size-12 rounded-full object-cover"
+              alt={`Avatar de ${user.name}`}
+              role="presentation"
+              width={200}
+              height={200}
+              onError={() => setImgError(true)}
+              unoptimized
+            />
+          ) : (
+            <div className="size-12 rounded-full bg-gradient-to-br from-primary/60 to-primary flex items-center justify-center">
+              <span className="text-lg font-bold text-white">
+                {user.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()}
+              </span>
+            </div>
+          )}
 
           <figcaption className="space-y-1 text-base font-medium">
             <div className="mb-2 leading-none text-dark dark:text-white">

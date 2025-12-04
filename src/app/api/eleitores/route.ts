@@ -15,9 +15,15 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search') || '';
     const subgrupoId = searchParams.get('subgrupoId') || '';
     const grupoId = searchParams.get('grupoId') || '';
+    const novosCadastros = searchParams.get('novosCadastros') === 'true';
+    const naoExportados = searchParams.get('naoExportados') === 'true';
+    const bairro = searchParams.get('bairro') || '';
+    const aquecido = searchParams.get('aquecido');
+    const sortBy = searchParams.get('sortBy') || 'createdAt';
+    const sortDir = searchParams.get('sortDir') || 'desc';
 
     // Gerar chave de cache única baseada nos parâmetros
-    const cacheKey = `${CACHE_KEY_PREFIX}:list:page${page}:limit${limit}:search${search}:subgrupo${subgrupoId}:grupo${grupoId}`;
+    const cacheKey = `${CACHE_KEY_PREFIX}:list:page${page}:limit${limit}:search${search}:subgrupo${subgrupoId}:grupo${grupoId}:novos${novosCadastros}:naoExp${naoExportados}:bairro${bairro}:aquecido${aquecido}:sort${sortBy}${sortDir}`;
 
     // Tentar obter do cache primeiro
     const cachedData = await getCache<any>(cacheKey);
@@ -49,7 +55,44 @@ export async function GET(request: NextRequest) {
     if (grupoId) {
       where.grupoId = grupoId;
     }
-    
+
+    // Filtro de novos cadastros (últimos 7 dias)
+    if (novosCadastros) {
+      const seteDiasAtras = new Date();
+      seteDiasAtras.setDate(seteDiasAtras.getDate() - 7);
+      where.createdAt = { gte: seteDiasAtras };
+    }
+
+    // Filtro de não exportados
+    if (naoExportados) {
+      where.exportado = false;
+    }
+
+    // Filtro por bairro
+    if (bairro) {
+      where.bairro = { contains: bairro, mode: 'insensitive' as const };
+    }
+
+    // Filtro por aquecido
+    if (aquecido === 'true') {
+      where.aquecido = true;
+    } else if (aquecido === 'false') {
+      where.aquecido = false;
+    }
+
+    // Definir ordenação dinâmica - mapear nomes amigáveis para nomes do banco
+    const sortFieldMap: Record<string, string> = {
+      nome: 'nomeCompleto',
+      nomeCompleto: 'nomeCompleto',
+      data: 'createdAt',
+      createdAt: 'createdAt',
+      cidade: 'cidade',
+      bairro: 'bairro',
+    };
+    const sortField = sortFieldMap[sortBy] || 'createdAt';
+    const sortDirection = sortDir === 'asc' ? 'asc' : 'desc';
+    const orderBy = { [sortField]: sortDirection };
+
     // Buscar eleitores e total em paralelo com select otimizado
     const [eleitores, total] = await Promise.all([
       prisma.eleitor.findMany({
@@ -59,8 +102,28 @@ export async function GET(request: NextRequest) {
           nomeCompleto: true,
           cpf: true,
           telefone: true,
+          email: true,
+          bairro: true,
           cidade: true,
           uf: true,
+          exportado: true,
+          exportadoEm: true,
+          aquecido: true,
+          aquecidoEm: true,
+          grupoId: true,
+          subgrupoId: true,
+          grupo: {
+            select: {
+              id: true,
+              nome: true,
+            },
+          },
+          subgrupo: {
+            select: {
+              id: true,
+              nome: true,
+            },
+          },
           criadoPor: {
             select: {
               nome: true,
@@ -68,13 +131,13 @@ export async function GET(request: NextRequest) {
           },
           createdAt: true,
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy,
         skip,
         take: limit,
       }),
       prisma.eleitor.count({ where }),
     ]);
-    
+
     const responseData = {
       eleitores,
       pagination: {
@@ -84,14 +147,14 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil(total / limit),
       },
     };
-    
+
     // Salvar no cache (30 segundos)
     await setCache(cacheKey, responseData, 30);
-    
+
     const response = NextResponse.json(responseData);
     response.headers.set('X-Cache', 'MISS');
     response.headers.set('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=60');
-    
+
     return response;
   } catch (error) {
     console.error('Erro ao listar eleitores:', error);
@@ -123,12 +186,17 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // Preparar dados para criação
+    const { grupoId, subgrupoId, ...restData } = validatedData;
+
     // Criar eleitor
     const eleitor = await prisma.eleitor.create({
       data: {
-        ...validatedData,
+        ...restData,
         dataNascimento: new Date(validatedData.dataNascimento),
         email: validatedData.email || null,
+        grupoId: grupoId || null,
+        subgrupoId: subgrupoId || null,
       },
       include: {
         criadoPor: {
@@ -137,6 +205,18 @@ export async function POST(request: NextRequest) {
             nome: true,
             email: true,
             role: true,
+          },
+        },
+        grupo: {
+          select: {
+            id: true,
+            nome: true,
+          },
+        },
+        subgrupo: {
+          select: {
+            id: true,
+            nome: true,
           },
         },
       },
