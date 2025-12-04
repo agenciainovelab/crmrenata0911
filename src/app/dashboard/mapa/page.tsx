@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import jsVectorMap from 'jsvectormap';
-import 'jsvectormap/dist/css/jsvectormap.css';
+import 'jsvectormap/dist/jsvectormap.css';
 import 'jsvectormap/dist/maps/world';
 // Importar mapa do mundo (já que não temos certeza se o do Brasil está disponível nos arquivos locais)
 // Se houver um arquivo brazil.js, poderíamos usar. Vamos tentar usar o world ou us como fallback se não tivermos outro.

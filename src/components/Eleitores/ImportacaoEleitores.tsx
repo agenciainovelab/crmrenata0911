@@ -40,14 +40,14 @@ const normalizarTexto = (texto: string): string => {
     'û': 'u', 'ú': 'u', 'ù': 'u', 'ü': 'u',
     'ç': 'c', 'ñ': 'n',
     // Caracteres corrompidos comuns
-    'ã': 'a', 'ã©': 'e', 'ã³': 'o', 'ã§': 'c',
+    'ã©': 'e', 'ã§': 'c',
     'ã£': 'a', 'ãª': 'e', 'ã­': 'i', 'ãº': 'u',
-    'ã¡': 'a', 'ã©': 'e', 'ã­': 'i', 'ã³': 'o', 'ãº': 'u',
-    'ã¢': 'a', 'ãª': 'e', 'ã´': 'o',
-    'ã£': 'a', 'ã•': 'o', 'ã': 'a',
-    'ãƒ': 'a', 'ã‰': 'e', 'ã•': 'o',
+    'ã¡': 'a', 'ã³': 'o',
+    'ã¢': 'a', 'ã´': 'o',
+    'ã•': 'o',
+    'ãƒ': 'a', 'ã‰': 'e',
     // Caracteres especiais e símbolos
-    '�': '', '\ufffd': '',
+    '\ufffd': '',
   };
 
   for (const [errado, certo] of Object.entries(correcoes)) {

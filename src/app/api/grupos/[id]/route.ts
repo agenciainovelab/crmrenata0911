@@ -12,11 +12,12 @@ const grupoUpdateSchema = z.object({
 // GET - Buscar grupo por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const grupo = await prisma.grupo.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         _count: {
           select: {
@@ -63,15 +64,16 @@ export async function GET(
 // PUT - Atualizar grupo
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const validatedData = grupoUpdateSchema.parse(body);
 
     // Verificar se o grupo existe
     const grupoExistente = await prisma.grupo.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!grupoExistente) {
@@ -82,7 +84,7 @@ export async function PUT(
     }
 
     const grupo = await prisma.grupo.update({
-      where: { id: params.id },
+      where: { id },
       data: validatedData,
       include: {
         _count: {
@@ -114,12 +116,13 @@ export async function PUT(
 // DELETE - Excluir grupo
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     // Verificar se o grupo existe
     const grupo = await prisma.grupo.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         _count: {
           select: {
@@ -160,7 +163,7 @@ export async function DELETE(
     }
 
     await prisma.grupo.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({

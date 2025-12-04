@@ -19,11 +19,12 @@ const presencaSchema = z.object({
 // GET - Buscar informações do evento pelo token
 export async function GET(
   request: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
   try {
+    const { token } = await params;
     const evento = await prisma.eventoPresenca.findUnique({
-      where: { linkUnico: params.token },
+      where: { linkUnico: token },
       include: {
         subgrupo: {
           select: {
@@ -100,15 +101,16 @@ export async function GET(
 // POST - Confirmar presença (criar eleitor)
 export async function POST(
   request: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
   try {
+    const { token } = await params;
     const body = await request.json();
     const validatedData = presencaSchema.parse(body);
 
     // Buscar evento
     const evento = await prisma.eventoPresenca.findUnique({
-      where: { linkUnico: params.token },
+      where: { linkUnico: token },
       include: {
         subgrupo: {
           include: {

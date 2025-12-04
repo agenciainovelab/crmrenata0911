@@ -13,11 +13,12 @@ const subgrupoUpdateSchema = z.object({
 // GET - Buscar subgrupo por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const subgrupo = await prisma.subgrupo.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         grupo: {
           select: {
@@ -63,15 +64,16 @@ export async function GET(
 // PUT - Atualizar subgrupo
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const validatedData = subgrupoUpdateSchema.parse(body);
 
     // Verificar se o subgrupo existe
     const subgrupoExistente = await prisma.subgrupo.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!subgrupoExistente) {
@@ -110,7 +112,7 @@ export async function PUT(
     }
 
     const subgrupo = await prisma.subgrupo.update({
-      where: { id: params.id },
+      where: { id },
       data: validatedData,
       include: {
         grupo: {
@@ -157,12 +159,13 @@ export async function PUT(
 // DELETE - Excluir subgrupo
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     // Verificar se o subgrupo existe
     const subgrupo = await prisma.subgrupo.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         _count: {
           select: {
@@ -194,12 +197,12 @@ export async function DELETE(
     // Excluir eventos de presença primeiro (cascade está no schema, mas por garantia)
     if (subgrupo._count.eventosPresenca > 0) {
       await prisma.eventoPresenca.deleteMany({
-        where: { subgrupoId: params.id },
+        where: { subgrupoId: id },
       });
     }
 
     await prisma.subgrupo.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({

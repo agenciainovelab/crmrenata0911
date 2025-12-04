@@ -175,13 +175,14 @@ export async function POST(request: NextRequest) {
     ].join('\n');
 
     // Criar nome do arquivo
-    const tipoNome = {
+    const tipoNomeMap: Record<string, string> = {
       eleitores: 'todos_eleitores',
       aquecidos: 'eleitores_aquecidos',
       nao_aquecidos: 'eleitores_nao_aquecidos',
       exportados: 'eleitores_exportados',
       nao_exportados: 'eleitores_nao_exportados',
-    }[tipo] || 'relatorio';
+    };
+    const tipoNome = tipoNomeMap[tipo] || 'relatorio';
 
     const dataExport = new Date().toISOString().split('T')[0];
     const nomeArquivo = `${tipoNome}_${dataExport}.csv`;

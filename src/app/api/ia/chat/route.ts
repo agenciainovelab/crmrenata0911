@@ -1,9 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Inicializar OpenAI de forma lazy para evitar erro no build
+let openai: OpenAI | null = null;
+
+function getOpenAI() {
+  if (!openai) {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error('OPENAI_API_KEY não configurada');
+    }
+    openai = new OpenAI({ apiKey });
+  }
+  return openai;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,12 +26,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const client = getOpenAI();
+
     const systemPrompt = `Você é um assistente de IA especializado em campanhas políticas e análise de dados eleitorais.
 Você ajuda a analisar dados de eleitores, sugerir estratégias de campanha, identificar padrões e fornecer insights valiosos.
 Responda sempre em português brasileiro de forma clara, objetiva e profissional.
 ${context ? `Contexto adicional: ${context}` : ''}`;
 
-    const completion = await openai.chat.completions.create({
+    const completion = await client.chat.completions.create({
       model: 'gpt-4.1-mini',
       messages: [
         { role: 'system', content: systemPrompt },

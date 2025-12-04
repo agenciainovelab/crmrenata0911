@@ -22,11 +22,12 @@ const eventoUpdateSchema = z.object({
 // GET - Buscar evento por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const evento = await prisma.eventoPresenca.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         subgrupo: {
           select: {
@@ -79,15 +80,16 @@ export async function GET(
 // PUT - Atualizar evento
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const validatedData = eventoUpdateSchema.parse(body);
 
     // Verificar se o evento existe
     const eventoExistente = await prisma.eventoPresenca.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!eventoExistente) {
@@ -108,7 +110,7 @@ export async function PUT(
     }
 
     const evento = await prisma.eventoPresenca.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       include: {
         subgrupo: {
@@ -162,19 +164,13 @@ export async function PUT(
 // DELETE - Excluir evento
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     // Verificar se o evento existe
     const evento = await prisma.eventoPresenca.findUnique({
-      where: { id: params.id },
-      include: {
-        _count: {
-          select: {
-            subgrupo: true,
-          },
-        },
-      },
+      where: { id },
     });
 
     if (!evento) {
@@ -190,7 +186,7 @@ export async function DELETE(
     }
 
     await prisma.eventoPresenca.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({
