@@ -12,6 +12,7 @@
     "REDIS_PASSWORD": "@redis_password",
     "OPENAI_API_KEY": "@openai_api_key",
     "JWT_SECRET": "@jwt_secret",
+    "BREVO_API_KEY": "@brevo_api_key",
     "NODE_ENV": "production"
   },
   "build": {
